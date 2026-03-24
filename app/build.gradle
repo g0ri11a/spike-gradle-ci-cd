@@ -90,7 +90,8 @@ publishing {
     }
     repositories {
         maven {
-            url = providers.environmentVariable('MAVEN_REPO_URL').map { uri(it)}
+            // url = providers.environmentVariable('MAVEN_REPO_URL').map { uri(it)}
+            url = 'https://maven.pkg.github.com/g0ri11a/spike-package-ci-cd'
 
             credentials {
                 username = providers.environmentVariable('MAVEN_REPO_USERNAME')
