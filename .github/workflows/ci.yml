@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'main'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Unit Test
+        run: ./gradlew test
+
+      - name: Functionality Test
+        run: ./gradlew functionTest
+
+      # PR시점, 스모크테스트를 진행한다
+      - name: Smoke Test
+        if: github.event_name == 'pull_request'
+        run: ./gradlew smokeTest
+
+      # PR시점, 중요 회귀테스트를 진행한다
+      - name: Critical Regression Test
+        if: github.event_name == 'pull_request'
+        run: ./gradlew regressionTest -DexcludeTags="slow,skip"
+
+      # MERGE시, 전체 회귀테스트를 진행한다
+      - name: Full Regression Test
+        if: github.ref == 'refs/heads/main'
+        run: ./gradlew regressionTest
+
+      # MERGE시, 배포할 jar 파일을 빌드한다
+      - name: Build Application
+        if: github.ref == 'refs/heads/main'
+        run: ./gradlew assemble
+
+      # MERGE시, 스테이징에 반영한다
+      - name: Upload to Staging
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            app/build/libs/*.jar

@@ -1,0 +1,102 @@
+plugins {
+	id 'java'
+    id 'test-conventions'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    mockitoAgent
+
+    matching { it.name.endsWith('TestRuntimeClasspath') || it.name == 'testRuntimeClasspath' }.configureEach {
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+    }
+}
+
+// 테스트유형 등록
+registerTestType('smokeTest', 'Runs Smoke Tests.')
+registerTestType('regressionTest', 'Runs Regression Tests.')
+registerTestType('functionTest', 'Runs Functionality Tests.')
+
+build.dependsOn project.tasks.smokeTest
+build.dependsOn project.tasks.regressionTest
+build.dependsOn project.tasks.functionTest
+
+dependencies {
+    // Mokito
+    mockitoAgent(libs.mockito.core) {
+        transitive = false
+    }
+
+    // ### 테스트 공통 ###
+    def testTypes = ['test', 'smokeTest', 'regressionTest', 'functionTest']
+
+    testTypes.each { type ->
+        "${type}Implementation" libs.junit.jupiter
+        "${type}RuntimeOnly" libs.junit.platform.launcher
+        "${type}Implementation" libs.mockito.core
+        "${type}Implementation" libs.mockito.junit.jupiter
+        "${type}CompileOnly" libs.lombok
+        "${type}AnnotationProcessor" libs.lombok
+        "${type}Implementation" libs.assertj.core
+        "${type}RuntimeOnly" libs.slf4j.simple
+    }
+
+    // ### 단위테스트 ###
+    // ### 스모크 테스트 ###
+    // ### 회귀 테스트 ###
+    // ### 기능 테스트 ###
+
+    // ### 프로젝트 설정 ###
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform {
+        def excludedTags = System.getProperty("excludeTags")
+
+        if (excludedTags) {
+            excludeTags excludedTags.split(',')
+        }
+    }
+
+    jvmArgs("-javaagent:${configurations.mockitoAgent.asPath}")
+
+    testLogging {
+        events "failed", "skipped"
+
+        exceptionFormat = 'full'
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = uri(System.getenv('MAVEN_REPO_URL'))
+            credentials {
+                username = System.getenv('MAVEN_REPO_USERNAME')
+                password = System.getenv('MAVEN_REPO_PASSWORD')
+            }
+        }
+    }
+}
+
+publish.dependsOn build

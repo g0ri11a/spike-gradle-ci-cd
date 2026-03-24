@@ -1,0 +1,20 @@
+{
+    "editor.formatOnSave": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.format.settings.url": "config/formatter/eclipse-formatter.xml",
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
+    "java.test.config": {
+        "vmArgs": [
+            "-Dproject.root=${workspaceFolder}"
+        ]
+    },
+    "java.completion.importOrder": [
+        "java",
+        "javax",
+        "jakarta",
+        "org",
+        "com",
+        " ",
+        "static",
+    ],
+}
