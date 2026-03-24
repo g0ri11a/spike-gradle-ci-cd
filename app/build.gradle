@@ -90,10 +90,11 @@ publishing {
     }
     repositories {
         maven {
-            url = uri(System.getenv('MAVEN_REPO_URL'))
+            url = providers.environmentVariable('MAVEN_REPO_URL').map { uri(it)}
+
             credentials {
-                username = System.getenv('MAVEN_REPO_USERNAME')
-                password = System.getenv('MAVEN_REPO_PASSWORD')
+                username = providers.environmentVariable('MAVEN_REPO_USERNAME')
+                password = providers.environmentVariable('MAVEN_REPO_PASSWORD')
             }
         }
     }
