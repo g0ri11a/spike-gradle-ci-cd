@@ -14,14 +14,13 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - uses: actions/checkout@v5
