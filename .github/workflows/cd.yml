@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: '아티팩트를 가져올 CI 워크플로우의 Run ID (수동 실행 시 필수)'
+        description: "아티팩트를 가져올 CI 워크플로우의 Run ID (수동 실행 시 필수)"
         required: false
         type: string
 
@@ -21,14 +21,15 @@ jobs:
     permissions:
       contents: write
       packages: write
+      actions: read
 
     steps:
       - uses: actions/checkout@v5
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: "21"
+          distribution: "temurin"
           cache: gradle
 
       - name: Make gradlew executable
