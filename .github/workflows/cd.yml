@@ -45,7 +45,7 @@ jobs:
       - name: Publish to Maven Repository
         run: ./gradlew publish -x assemble -x test -x smokeTest -x regressionTest -x functionTest
         env:
-          MAVEN_REPO_URL: "https://maven.pkg.github.com/g0ri11a/${{ github.repository }}"
+          MAVEN_REPO_URL: "https://maven.pkg.github.com/${{ github.repository }}"
           MAVEN_REPO_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Git Tag
