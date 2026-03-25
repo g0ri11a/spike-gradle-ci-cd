@@ -43,6 +43,10 @@ jobs:
           path: ./
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Load Version Info
+        run: |
+          cat version >> $GITHUB_ENV
+
       - name: Publish to Maven Repository
         run: ./gradlew publish -x assemble -x test -x smokeTest -x regressionTest -x functionTest
         env:
@@ -52,7 +56,11 @@ jobs:
 
       - name: Create Git Tag
         run: |
-          git tag v${{ github.run_number }}
-          git push origin v${{ github.run_number }}
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag v${{ env.VERSION }} already exists. Skipping tag creation."
+          else
+            git tag v${{ env.VERSION }}
+            git push origin v${{ env.VERSION }}
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

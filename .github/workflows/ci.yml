@@ -90,6 +90,12 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: ./gradlew assemble
 
+        # MERGE시, 배포할 jar 파일을 빌드한다
+      - name: Save Version Info
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "VERSION=${{ env.VERSION }}" >> version
+
       # MERGE시, 스테이징에 반영한다
       - name: Upload to Staging
         if: github.ref == 'refs/heads/main'
@@ -99,3 +105,4 @@ jobs:
           retention-days: 1
           path: |
             app/build/libs/*.jar
+            version
